@@ -1,3 +1,60 @@
-#+TITLE: Reference implementation for the WhibOx Contest Edition 3 (CHES Challenge 2021)
+#+TITLE: Supplementary Materials for the WhibOx Contest Edition 3
 
-TODO
+
+This repository provides the supplementary materials for the [[https://whibox.io/contests/2021/][WhibOx Contest Edition 3]].
+Specifically, it has the following three main contents:
+
+1. A CMD tool for generate a key pair given a seed.
+2. CMD tools for generating / verifying EC-Schnorr signature.
+3. The reference implementation in C using the [[https://gmplib.org/][GNU GMP]] library.
+
+* Prerequisites
+
+In order to use this repository, one has to install
+
+- [[https://www.gnu.org/software/make/][GNU Make]] (tested with version 3.81)
+- [[https://gcc.gnu.org/][GCC]] version 10.2
+- [[https://www.python.org/][Python 3.9]] (tested with version 3.9.4)
+- [[https://click.palletsprojects.com/en/7.x/][Click 7.x]] (test with version 7.1.2)
+- [[https://gmplib.org/][GNU GMP]] version 6.2.1 (configure prefix =/usr/local/=)
+
+
+* Usage
+
+** Generate EC key pairs from seed
+
+#+begin_src
+$ ./keygen.py CHES2021
+private key: d = 9C29EDDAEF2C2B4452052B668B83BE6365004278068884FA1AC3F6D0622875C3
+public key:  Q = (x = 78E0E9DACCC47DE94D674DF3B35624A2F08E600B26B3444077022AD575AF4DB7, y = 3084B4B8657EEA12396FDE260432BA7BDB3E092D61A42F830150D6CC8D798F9F)
+encoded public key:  78E0E9DACCC47DE94D674DF3B35624A2F08E600B26B3444077022AD575AF4DB73084B4B8657EEA12396FDE260432BA7BDB3E092D61A42F830150D6CC8D798F9F
+#+end_src
+
+** Generate and verify EC-Schnorr signature
+
+Notice the signature here is not deterministic.
+
+#+begin_src
+$ ./ec_schnorr_sign.py 9C29EDDAEF2C2B4452052B668B83BE6365004278068884FA1AC3F6D0622875C3
+Signature: 50163A72D46876355608D738FA2CB4BDF3AFFBF9AC3DC9E29C5EE276CD7599F7E38529FC98F653E4513B3D19A8435B38348972DBA482A407CBD9CDB043DB0E46
+
+$ ./ec_schnorr_verify.py 78E0E9DACCC47DE94D674DF3B35624A2F08E600B26B3444077022AD575AF4DB73084B4B8657EEA12396FDE260432BA7BDB3E092D61A42F830150D6CC8D798F9F 50163A72D46876355608D738FA2CB4BDF3AFFBF9AC3DC9E29C5EE276CD7599F7E38529FC98F653E4513B3D19A8435B38348972DBA482A407CBD9CDB043DB0E46
+Good signature :)
+#+end_src
+
+
+** The reference implementation
+
+The source code of the reference implementation can be found in [[dECDSA.c][dECDSA.c]].
+Try =make && ./dECDSA= to test it.
+
+#+begin_src
+$ xxd -ps -c 64 -u test_hash
+F7FD41E28DFCCA32C1CEEF637C202CA6E99E57F18AFEF957DF0866B4CDD60F5C
+
+$ ./dECDSA <test_hash | xxd -ps -c 128 -u
+8007ABC1CD96650531BD8039893E8CF549A52D26E2A8A0E4700087523A7156A42794DE699028D0768259367AD4676BFE2DACCA139263A684D0A7434EA3842BC4
+
+$ ./ecdsa_verify.py 78E0E9DACCC47DE94D674DF3B35624A2F08E600B26B3444077022AD575AF4DB73084B4B8657EEA12396FDE260432BA7BDB3E092D61A42F830150D6CC8D798F9F F7FD41E28DFCCA32C1CEEF637C202CA6E99E57F18AFEF957DF0866B4CDD60F5C 8007ABC1CD96650531BD8039893E8CF549A52D26E2A8A0E4700087523A7156A42794DE699028D0768259367AD4676BFE2DACCA139263A684D0A7434EA3842BC4
+Good signature :)
+#+end_src
