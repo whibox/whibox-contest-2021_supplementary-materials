@@ -221,7 +221,7 @@ void ECDSA_256_sign(unsigned char sig[64], const unsigned char hash[32])
 
     /* calculate r = Q[x] mod n, if r = 0, restart. */
     mpz_mod(r, Q->x, n);
-    if (mpz_cmp_ui(Q->x, 0) == 0) {
+    if (mpz_cmp_ui(r, 0) == 0) {
       loop_counter += 1;
       continue;
     }
